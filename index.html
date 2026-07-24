@@ -27,7 +27,47 @@
 
 
     <!-- INVENTORY LIST -->
-     
+        <section class="inventory-section">
+
+    <h2>Inventory List</h2>
+
+    <table border="1" width="100%" cellpadding="8">
+
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Warehouse</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr ng-repeat="product in products">
+
+                <td>{{product.id}}</td>
+                <td>{{product.name}}</td>
+                <td>{{product.category}}</td>
+                <td>{{product.quantity}}</td>
+                <td>{{product.warehouse}}</td>
+                <td>{{product.status}}</td>
+
+            </tr>
+
+            <tr ng-if="products.length==0">
+                <td colspan="6" align="center">
+                    No Products Available
+                </td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</section>
     <!-- INVENTORY LIST END-->
 
 
