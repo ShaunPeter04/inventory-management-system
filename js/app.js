@@ -1,133 +1,17 @@
-var app = angular.module("inventory", [])
+var app = angular.module("inventory", []);
+
 app.controller("inventoryController", function ($scope) {
 
     // =============================
-    // DASHBOARD
+    // PRODUCT DATA
     // =============================
 
-    // Primary Inventory Products Array (Initialized for dynamic data push from Product Management)
-    $scope.products = $scope.products || [];
+    // Product Array
+    $scope.products = [];
 
-    // Low stock threshold
+    // Low Stock Threshold
     $scope.lowStockThreshold = 10;
 
-    // Helper to compute stock status dynamically from product quantity
-    $scope.getStockStatus = function (item) {
-        if (!item || item.quantity === undefined || item.quantity === null) return "Unknown";
-        var qty = Number(item.quantity);
-        if (qty === 0) return "No Stock";
-        if (qty <= $scope.lowStockThreshold) return "Low Stock";
-        return "In Stock";
-    };
-
-    // 1. Total Products count fetched from products array
-    $scope.getTotalProducts = function () {
-        return ($scope.products && Array.isArray($scope.products)) ? $scope.products.length : 0;
-    };
-
-    // 2. Total Available Stock fetched from products array
-    $scope.getAvailableStock = function () {
-        if (!$scope.products || !Array.isArray($scope.products)) return 0;
-        return $scope.products.reduce(function (sum, item) {
-            return sum + (Number(item.quantity) || 0);
-        }, 0);
-    };
-
-    // 3. Low Stock Items count (0 < quantity <= lowStockThreshold) fetched from products array
-    $scope.getLowStockCount = function () {
-        if (!$scope.products || !Array.isArray($scope.products)) return 0;
-        return $scope.products.filter(function (item) {
-            var qty = Number(item.quantity) || 0;
-            return qty > 0 && qty <= $scope.lowStockThreshold;
-        }).length;
-    };
-
-    // 4. No Stock Items count (quantity === 0) fetched from products array
-    $scope.getNoStockCount = function () {
-        if (!$scope.products || !Array.isArray($scope.products)) return 0;
-        return $scope.products.filter(function (item) {
-            var qty = Number(item.quantity) || 0;
-            return qty === 0;
-        }).length;
-    };
-
-    // 5. Low Stock / No Stock product items fetched from products array
-    $scope.getAlertProducts = function () {
-        if (!$scope.products || !Array.isArray($scope.products)) return [];
-        return $scope.products.filter(function (item) {
-            var qty = Number(item.quantity) || 0;
-            return qty <= $scope.lowStockThreshold;
-        });
-    };
-
-    // 6. Dynamic Unique Categories fetched from products array
-    $scope.getCategories = function () {
-        if (!$scope.products || !Array.isArray($scope.products)) return [];
-        var categoryMap = {};
-        var categories = [];
-        $scope.products.forEach(function (item) {
-            if (item.category && !categoryMap[item.category]) {
-                categoryMap[item.category] = true;
-                categories.push(item.category);
-            }
-        });
-        return categories;
-    };
-
-    $scope.getCategoryCount = function () {
-        return $scope.getCategories().length;
-    };
-
-    $scope.getProductCountByCategory = function (categoryName) {
-        if (!$scope.products || !Array.isArray($scope.products)) return 0;
-        return $scope.products.filter(function (p) { return p.category === categoryName; }).length;
-    };
-
-    // 7. Dynamic Unique Warehouses fetched from products array
-    $scope.getWarehouses = function () {
-        if (!$scope.products || !Array.isArray($scope.products)) return [];
-        var warehouseMap = {};
-        var warehouses = [];
-        $scope.products.forEach(function (item) {
-            if (item.warehouse && !warehouseMap[item.warehouse]) {
-                warehouseMap[item.warehouse] = true;
-                warehouses.push(item.warehouse);
-            }
-        });
-        return warehouses;
-    };
-
-    $scope.getWarehouseCount = function () {
-        return $scope.getWarehouses().length;
-    };
-
-    $scope.getProductCountByWarehouse = function (warehouseName) {
-        if (!$scope.products || !Array.isArray($scope.products)) return 0;
-        return $scope.products.filter(function (p) { return p.warehouse === warehouseName; }).length;
-    };
-
-    // 8. Dynamic Recent Inventory Updates fetched directly from products array
-    $scope.getRecentUpdates = function () {
-        if (!$scope.products || !Array.isArray($scope.products)) return [];
-        return $scope.products
-            .filter(function (p) { return p.lastUpdated || p.updatedAt; })
-            .slice()
-            .sort(function (a, b) {
-                var dateA = new Date(a.lastUpdated || a.updatedAt || 0);
-                var dateB = new Date(b.lastUpdated || b.updatedAt || 0);
-                return dateB - dateA;
-            });
-    };
-
-    // =============================
-    // DASHBOARD END
-    // =============================
-
-
-
-    // =============================
-    // PRODUCT MANAGEMENT
-    // =============================
     // Categories
     $scope.categories = [
         "Electronics",
@@ -137,8 +21,8 @@ app.controller("inventoryController", function ($scope) {
         "Accessories"
     ];
 
-    // Warehouse Locations
-    $scope.warehouses = [
+    // Warehouse Names (For Product Management Dropdown)
+    $scope.warehouseNames = [
         "Warehouse A",
         "Warehouse B",
         "Warehouse C",
@@ -146,28 +30,220 @@ app.controller("inventoryController", function ($scope) {
         "Dispatch Area"
     ];
 
+    // =============================
+    // DASHBOARD
+    // =============================
+
+    // Stock Status
+    $scope.getStockStatus = function (item) {
+
+        var qty = Number(item.quantity) || 0;
+
+        if (qty === 0)
+            return "Out of Stock";
+
+        if (qty <= $scope.lowStockThreshold)
+            return "Low Stock";
+
+        return "Available";
+
+    };
+
+    // Total Products
+    $scope.getTotalProducts = function () {
+        return $scope.products.length;
+    };
+
+    // Total Available Stock
+    $scope.getAvailableStock = function () {
+
+        var total = 0;
+
+        angular.forEach($scope.products, function (product) {
+            total += Number(product.quantity) || 0;
+        });
+
+        return total;
+    };
+
+    // Low Stock Count
+    $scope.getLowStockCount = function () {
+
+        var count = 0;
+
+        angular.forEach($scope.products, function (product) {
+
+            if (product.status === "Low Stock") {
+                count++;
+            }
+
+        });
+
+        return count;
+
+    };
+
+    // No Stock Count
+    $scope.getNoStockCount = function () {
+
+        var count = 0;
+
+        angular.forEach($scope.products, function (product) {
+
+            if (product.status === "Out of Stock") {
+                count++;
+            }
+
+        });
+
+        return count;
+
+    };
+
+    // Alert Products
+    $scope.getAlertProducts = function () {
+
+        return $scope.products.filter(function (product) {
+
+            return product.status === "Low Stock" ||
+                product.status === "Out of Stock";
+
+        });
+
+    };
+
+    // Unique Categories
+    $scope.getCategories = function () {
+
+        var categories = [];
+        var map = {};
+
+        angular.forEach($scope.products, function (product) {
+
+            if (product.category && !map[product.category]) {
+
+                map[product.category] = true;
+                categories.push(product.category);
+
+            }
+
+        });
+
+        return categories;
+    };
+
+    // Category Count
+    $scope.getCategoryCount = function () {
+        return $scope.getCategories().length;
+    };
+
+    // Product Count By Category
+    $scope.getProductCountByCategory = function (category) {
+
+        var count = 0;
+
+        angular.forEach($scope.products, function (product) {
+
+            if (product.category === category)
+                count++;
+
+        });
+
+        return count;
+    };
+
+    // Unique Warehouses
+    $scope.getWarehouses = function () {
+
+        var warehouses = [];
+        var map = {};
+
+        angular.forEach($scope.products, function (product) {
+
+            if (product.warehouse && !map[product.warehouse]) {
+
+                map[product.warehouse] = true;
+                warehouses.push(product.warehouse);
+
+            }
+
+        });
+
+        return warehouses;
+    };
+
+    // Warehouse Count
+    $scope.getWarehouseCount = function () {
+
+        return $scope.getWarehouses().length;
+
+    };
+
+    // Product Count By Warehouse
+    $scope.getProductCountByWarehouse = function (warehouse) {
+
+        var count = 0;
+
+        angular.forEach($scope.products, function (product) {
+
+            if (product.warehouse === warehouse)
+                count++;
+
+        });
+
+        return count;
+
+    };
+
+    // Recent Updates
+    $scope.getRecentUpdates = function () {
+
+        return $scope.products
+            .slice()
+            .sort(function (a, b) {
+
+                return new Date(b.lastUpdated)
+                    - new Date(a.lastUpdated);
+
+            });
+
+    };
+
+    // =============================
+    // DASHBOARD END
+    // =============================
+
+    // =============================
+    // PRODUCT MANAGEMENT
+    // =============================
+
     // Product Object
     $scope.product = {};
-
-    // Product Array
-    $scope.products = [];
 
     // Success Message
     $scope.message = "";
 
-    // Add Product Function
+    // Add Product
     $scope.addProduct = function () {
 
         $scope.products.push({
+
             id: $scope.product.id,
             name: $scope.product.name,
             category: $scope.product.category,
             supplier: $scope.product.supplier,
-            quantity: $scope.product.quantity,
-            price: $scope.product.price,
+
+            quantity: Number($scope.product.quantity),
+
+            price: Number($scope.product.price),
+
             warehouse: $scope.product.warehouse,
-            status: $scope.product.status,
-            addedDate: new Date()
+
+            // Automatically determine status
+            status: $scope.getStockStatus($scope.product),
+            // Used in Dashboard → Recent Updates
+            lastUpdated: new Date()
+
         });
 
         $scope.message = "Product added successfully!";
@@ -175,11 +251,15 @@ app.controller("inventoryController", function ($scope) {
         // Clear form
         $scope.product = {};
 
-        // Reset form validation
-        $scope.productForm.$setPristine();
-        $scope.productForm.$setUntouched();
-    };
+        // Reset validation
+        if ($scope.productForm) {
 
+            $scope.productForm.$setPristine();
+            $scope.productForm.$setUntouched();
+
+        }
+
+    };
 
     // =============================
     // PRODUCT MANAGEMENT END
@@ -191,122 +271,150 @@ app.controller("inventoryController", function ($scope) {
     // INVENTORY LIST
     // =============================
 
-
+    // Inventory List uses
+    // ng-repeat="product in products"
+    // No extra JavaScript is required.
 
     // =============================
     // INVENTORY LIST END
     // =============================
+    // =============================
+    // WAREHOUSE
+    // =============================
 
+    // Warehouse Details
+    $scope.warehouseList = [
 
-// =============================
-// WAREHOUSE
-// =============================
-$scope.warehouses = [
-    {
-        id: "WH001",
-        name: "Warehouse A",
-        manager: "Rahul Sharma",
-        location: "Kochi",
-        capacity: 1500,
-        stock: 1200,
-        status: "Active",
-        contact: "9876543210",
-        lastUpdated: new Date()
-    },
-    {
-        id: "WH002",
-        name: "Warehouse B",
-        manager: "Anjali Thomas",
-        location: "Ernakulam",
-        capacity: 1000,
-        stock: 450,
-        status: "Active",
-        contact: "9876543211",
-        lastUpdated: new Date()
-    },
-    {
-        id: "WH003",
-        name: "Warehouse C",
-        manager: "Joseph Mathew",
-        location: "Thrissur",
-        capacity: 800,
-        stock: 150,
-        status: "Maintenance",
-        contact: "9876543212",
-        lastUpdated: new Date()
-    },
-    {
-        id: "WH004",
-        name: "Main Storage",
-        manager: "Arun Kumar",
-        location: "Bengaluru",
-        capacity: 3000,
-        stock: 2600,
-        status: "Active",
-        contact: "9876543213",
-        lastUpdated: new Date()
-    },
-    {
-        id: "WH005",
-        name: "Dispatch Area",
-        manager: "Neethu George",
-        location: "Chennai",
-        capacity: 600,
-        stock: 75,
-        status: "Active",
-        contact: "9876543214",
-        lastUpdated: new Date()
-    }
-];
+        {
+            id: "WH001",
+            name: "Warehouse A",
+            manager: "Rahul Sharma",
+            location: "Kochi",
+            capacity: 1500,
+            stock: 1200,
+            status: "Active",
+            contact: "9876543210",
+            lastUpdated: new Date()
+        },
 
-// Default Selected Warehouse
-$scope.selectedWarehouse = $scope.warehouses[0];
+        {
+            id: "WH002",
+            name: "Warehouse B",
+            manager: "Anjali Thomas",
+            location: "Ernakulam",
+            capacity: 1000,
+            stock: 450,
+            status: "Active",
+            contact: "9876543211",
+            lastUpdated: new Date()
+        },
 
-// Select Warehouse
-$scope.selectWarehouse = function (warehouse) {
-    $scope.selectedWarehouse = warehouse;
-};
+        {
+            id: "WH003",
+            name: "Warehouse C",
+            manager: "Joseph Mathew",
+            location: "Thrissur",
+            capacity: 800,
+            stock: 150,
+            status: "Maintenance",
+            contact: "9876543212",
+            lastUpdated: new Date()
+        },
 
-// Total Warehouses
-$scope.totalWarehouses = $scope.warehouses.length;
+        {
+            id: "WH004",
+            name: "Main Storage",
+            manager: "Arun Kumar",
+            location: "Bengaluru",
+            capacity: 3000,
+            stock: 2600,
+            status: "Active",
+            contact: "9876543213",
+            lastUpdated: new Date()
+        },
 
-// Total Stock
-$scope.totalWarehouseStock = function () {
-    var total = 0;
-
-    angular.forEach($scope.warehouses, function (warehouse) {
-        total += warehouse.stock;
-    });
-
-    return total;
-};
-
-// Active Warehouses
-$scope.activeWarehouseCount = function () {
-    var count = 0;
-
-    angular.forEach($scope.warehouses, function (warehouse) {
-        if (warehouse.status === "Active") {
-            count++;
+        {
+            id: "WH005",
+            name: "Dispatch Area",
+            manager: "Neethu George",
+            location: "Chennai",
+            capacity: 600,
+            stock: 75,
+            status: "Active",
+            contact: "9876543214",
+            lastUpdated: new Date()
         }
-    });
 
-    return count;
-};
+    ];
 
-// Low Stock Warehouses (Stock < 200)
-$scope.lowStockWarehouseCount = function () {
-    var count = 0;
+    // Default Warehouse
+    $scope.selectedWarehouse = $scope.warehouseList[0];
 
-    angular.forEach($scope.warehouses, function (warehouse) {
-        if (warehouse.stock < 200) {
-            count++;
-        }
-    });
+    // Select Warehouse
+    $scope.selectWarehouse = function (warehouse) {
 
-    return count;
-};
+        $scope.selectedWarehouse = warehouse;
 
-// =============================
-// WAREHOUSE END
+    };
 
+    // Total Warehouses
+    $scope.totalWarehouses = $scope.warehouseList.length;
+
+    // Total Warehouse Stock
+    $scope.totalWarehouseStock = function () {
+
+        var total = 0;
+
+        angular.forEach($scope.warehouseList, function (warehouse) {
+
+            total += warehouse.stock;
+
+        });
+
+        return total;
+
+    };
+
+    // Active Warehouses
+    $scope.activeWarehouseCount = function () {
+
+        var count = 0;
+
+        angular.forEach($scope.warehouseList, function (warehouse) {
+
+            if (warehouse.status === "Active") {
+
+                count++;
+
+            }
+
+        });
+
+        return count;
+
+    };
+
+    // Low Stock Warehouses
+    $scope.lowStockWarehouseCount = function () {
+
+        var count = 0;
+
+        angular.forEach($scope.warehouseList, function (warehouse) {
+
+            if (warehouse.stock < 200) {
+
+                count++;
+
+            }
+
+        });
+
+        return count;
+
+    };
+
+    // =============================
+    // WAREHOUSE END
+    // =============================
+
+});
