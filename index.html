@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html ng-app="inventory">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,6 +20,11 @@
         <header class="app-header">
             <h1>Inventory Management System</h1>
         </header>
+
+<body>
+    <!-- DASHBOARD -->
+
+    <!-- DASHBOARD END-->
 
         <!-- DASHBOARD -->
         <section class="dashboard-section">
@@ -147,12 +153,319 @@
         <!-- DASHBOARD END-->
 
 
+    <!-- PRODUCT MANAGEMENT -->
+    <section class="product-section" ng-controller="inventoryController">
+
+        <h2>Product Management</h2>
+
+        <form name="productForm" ng-submit="addProduct()" novalidate>
+
+            <!-- Product ID -->
+            <div class="form-group">
+                <label>Product ID</label>
+
+                <input type="text" ng-model="product.id" placeholder="Enter Product ID" required>
+
+                <small class="error" ng-show="productForm.$submitted && !product.id">
+                    Product ID is required.
+                </small>
+            </div>
+
+
+            <!-- Product Name -->
+            <div class="form-group">
+                <label>Product Name</label>
+
+                <input type="text" name="productName" ng-model="product.name" minlength="3" maxlength="30"
+                    placeholder="Enter Product Name" required>
+
+                <small ng-show="productForm.productName.$touched &&
+                         productForm.productName.$error.required">
+
+                    Product Name is required.
+                </small>
+
+                <small ng-show="productForm.productName.$error.minlength">
+
+                    Minimum 3 characters required.
+                </small>
+
+                <small ng-show="productForm.productName.$error.maxlength">
+
+                    Maximum 30 characters allowed.
+                </small>
+
+            </div>
+
+
+            <!-- Category -->
+
+            <div class="form-group">
+
+                <label>Category</label>
+
+                <select ng-model="product.category" ng-options="category for category in categories" required>
+
+                    <option value="">Select Category</option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Supplier -->
+
+            <div class="form-group">
+
+                <label>Supplier</label>
+
+                <input type="text" name="supplier" ng-model="product.supplier" minlength="3" maxlength="25" required>
+
+            </div>
+
+
+            <!-- Quantity -->
+
+            <div class="form-group">
+
+                <label>Quantity</label>
+
+                <input type="number" ng-model="product.quantity" min="1" required>
+
+            </div>
+
+
+            <!-- Unit Price -->
+
+            <div class="form-group">
+
+                <label>Unit Price</label>
+
+                <input type="number" ng-model="product.price" min="1" required>
+
+            </div>
+
+
+            <!-- Warehouse -->
+
+            <div class="form-group">
+
+                <label>Warehouse</label>
+
+                <select ng-model="product.warehouse" ng-options="warehouse for warehouse in warehouses" required>
+
+                    <option value="">Select Warehouse</option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Product Status -->
+
+            <div class="form-group">
+
+                <label>Status</label>
+
+                <select ng-model="product.status" required>
+
+                    <option value="">Select Status</option>
+                    <option>Available</option>
+                    <option>Low Stock</option>
+                    <option>Out of Stock</option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Buttons -->
+
+            <div class="button-group">
+
+                <button type="submit" ng-disabled="productForm.$invalid">
+
+                    Add Product
+
+                </button>
+
+                <button type="reset">
+
+                    Reset
+
+                </button>
+
+            </div>
+
+        </form>
+
+
+        <!-- Success Message -->
+
+        <div class="success" ng-show="message">
+
+            {{message}}
+
+        </div>
+
+    </section>
+
+    <!-- PRODUCT MANAGEMENT END -->
+
+
+    <!-- INVENTORY LIST -->
+
+        <section class="inventory-section">
+
+    <h2>Inventory List</h2>
+
+    <table border="1" width="100%" cellpadding="8">
+
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Warehouse</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr ng-repeat="product in products">
+
+                <td>{{product.id}}</td>
+                <td>{{product.name}}</td>
+                <td>{{product.category}}</td>
+                <td>{{product.quantity}}</td>
+                <td>{{product.warehouse}}</td>
+                <td>{{product.status}}</td>
+
+            </tr>
+
+            <tr ng-if="products.length==0">
+                <td colspan="6" align="center">
+                    No Products Available
+                </td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</section>
+    <!-- INVENTORY LIST END-->
 
         <!-- PRODUCT MANAGEMENT -->
          
         <!-- PRODUCT MANAGEMENT END-->
 
 
+    <!-- WAREHOUSE -->
+      <div class="container">
+
+        <h2>Warehouse Module</h2>
+
+        <label>Select Warehouse</label>
+
+        <select
+            ng-model="selectedWarehouse"
+            ng-options="warehouse.name for warehouse in warehouses">
+            <option value="">Choose Warehouse</option>
+        </select>
+
+        <div ng-show="selectedWarehouse" class="panel">
+
+            <h3>{{selectedWarehouse.name}}</h3>
+
+            <p>
+                <b>Manager :</b>
+                {{selectedWarehouse.manager}}
+            </p>
+
+            <p>
+                <b>Capacity :</b>
+                {{selectedWarehouse.capacity}}
+            </p>
+
+            <p>
+                <b>Available Stock :</b>
+
+                <span ng-class="{
+                'high': selectedWarehouse.stock>500,
+                'medium': selectedWarehouse.stock<=500 && selectedWarehouse.stock>200,
+                'low': selectedWarehouse.stock<=200
+            }">
+
+                    {{selectedWarehouse.stock}}
+
+                </span>
+
+            </p>
+
+            <p>
+                <b>Status :</b>
+
+                <span
+                    ng-class="selectedWarehouse.status=='Active' ? 'available':'unavailable'">
+
+                    {{selectedWarehouse.status}}
+
+                </span>
+
+            </p>
+
+            <p ng-style="{'font-weight':'bold','color':'darkblue'}">
+
+                Last Updated :
+                {{selectedWarehouse.lastUpdated | date:'mediumDate'}}
+
+            </p>
+
+            <div ng-switch="selectedWarehouse.name">
+
+                <div ng-switch-when="Warehouse A">
+                    Electronics and Mobile Devices Storage
+                </div>
+
+                <div ng-switch-when="Warehouse B">
+                    Furniture and Home Appliances Storage
+                </div>
+
+                <div ng-switch-when="Warehouse C">
+                    Clothing and Fashion Products Storage
+                </div>
+
+                <div ng-switch-when="Main Storage">
+                    Main Inventory Distribution Center
+                </div>
+
+                <div ng-switch-when="Dispatch Area">
+                    Ready for Shipment Section
+                </div>
+
+            </div>
+
+        </div>
+
+        <p ng-hide="selectedWarehouse">
+
+            Please select a warehouse.
+
+        </p>
+
+        <button
+            ng-disabled="!selectedWarehouse">
+
+            Continue
+
+        </button>
+
+    </div>
+
+    <!-- WAREHOUSE END-->
 
         <!-- INVENTORY LIST -->
          
@@ -166,4 +479,5 @@
 
     </div>
 </body>
+
 </html>
