@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html ng-app="inventory">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,29 +14,185 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
     <script src="js/app.js"></script>
 </head>
+
 <body>
     <!-- DASHBOARD -->
-     
+
     <!-- DASHBOARD END-->
 
 
 
     <!-- PRODUCT MANAGEMENT -->
-     
-    <!-- PRODUCT MANAGEMENT END-->
+    <section class="product-section" ng-controller="inventoryController">
 
+        <h2>Product Management</h2>
+
+        <form name="productForm" ng-submit="addProduct()" novalidate>
+
+            <!-- Product ID -->
+            <div class="form-group">
+                <label>Product ID</label>
+
+                <input type="text" ng-model="product.id" placeholder="Enter Product ID" required>
+
+                <small class="error" ng-show="productForm.$submitted && !product.id">
+                    Product ID is required.
+                </small>
+            </div>
+
+
+            <!-- Product Name -->
+            <div class="form-group">
+                <label>Product Name</label>
+
+                <input type="text" name="productName" ng-model="product.name" minlength="3" maxlength="30"
+                    placeholder="Enter Product Name" required>
+
+                <small ng-show="productForm.productName.$touched &&
+                         productForm.productName.$error.required">
+
+                    Product Name is required.
+                </small>
+
+                <small ng-show="productForm.productName.$error.minlength">
+
+                    Minimum 3 characters required.
+                </small>
+
+                <small ng-show="productForm.productName.$error.maxlength">
+
+                    Maximum 30 characters allowed.
+                </small>
+
+            </div>
+
+
+            <!-- Category -->
+
+            <div class="form-group">
+
+                <label>Category</label>
+
+                <select ng-model="product.category" ng-options="category for category in categories" required>
+
+                    <option value="">Select Category</option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Supplier -->
+
+            <div class="form-group">
+
+                <label>Supplier</label>
+
+                <input type="text" name="supplier" ng-model="product.supplier" minlength="3" maxlength="25" required>
+
+            </div>
+
+
+            <!-- Quantity -->
+
+            <div class="form-group">
+
+                <label>Quantity</label>
+
+                <input type="number" ng-model="product.quantity" min="1" required>
+
+            </div>
+
+
+            <!-- Unit Price -->
+
+            <div class="form-group">
+
+                <label>Unit Price</label>
+
+                <input type="number" ng-model="product.price" min="1" required>
+
+            </div>
+
+
+            <!-- Warehouse -->
+
+            <div class="form-group">
+
+                <label>Warehouse</label>
+
+                <select ng-model="product.warehouse" ng-options="warehouse for warehouse in warehouses" required>
+
+                    <option value="">Select Warehouse</option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Product Status -->
+
+            <div class="form-group">
+
+                <label>Status</label>
+
+                <select ng-model="product.status" required>
+
+                    <option value="">Select Status</option>
+                    <option>Available</option>
+                    <option>Low Stock</option>
+                    <option>Out of Stock</option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Buttons -->
+
+            <div class="button-group">
+
+                <button type="submit" ng-disabled="productForm.$invalid">
+
+                    Add Product
+
+                </button>
+
+                <button type="reset">
+
+                    Reset
+
+                </button>
+
+            </div>
+
+        </form>
+
+
+        <!-- Success Message -->
+
+        <div class="success" ng-show="message">
+
+            {{message}}
+
+        </div>
+
+    </section>
+
+    <!-- PRODUCT MANAGEMENT END -->
 
 
     <!-- INVENTORY LIST -->
-     
+
     <!-- INVENTORY LIST END-->
 
 
 
     <!-- WAREHOUSE -->
-     
+
     <!-- WAREHOUSE END-->
 
 
 </body>
+
 </html>
