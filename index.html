@@ -14,12 +14,143 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
     <script src="js/app.js"></script>
 </head>
+<body ng-controller="inventorycontroller">
+    <div class="main-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>Inventory Management System</h1>
+        </header>
 
 <body>
     <!-- DASHBOARD -->
 
     <!-- DASHBOARD END-->
 
+        <!-- DASHBOARD -->
+        <section class="dashboard-section">
+            <h2>Dashboard Overview</h2>
+            
+            <!-- Summary Cards Grid -->
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-label">Total Products</div>
+                    <div class="card-value">{{ getTotalProducts() }}</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Available Stock</div>
+                    <div class="card-value">{{ getAvailableStock() }}</div>
+                </div>
+                <div class="card card-warning-accent">
+                    <div class="card-label">Low Stock Items</div>
+                    <div class="card-value">{{ getLowStockCount() }}</div>
+                </div>
+                <div class="card card-alert">
+                    <div class="card-label">No Stock Items</div>
+                    <div class="card-value">{{ getNoStockCount() }}</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Categories</div>
+                    <div class="card-value">{{ getCategoryCount() }}</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Warehouse Locations</div>
+                    <div class="card-value">{{ getWarehouseCount() }}</div>
+                </div>
+            </div>
+
+            <!-- Content Row 1: Low & No Stock Items & Distribution -->
+            <div class="dashboard-grid-2col">
+                <div class="panel">
+                    <h3>Low & No Stock Items (From products Array)</h3>
+                    <table class="minimal-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Warehouse</th>
+                                <th>Qty</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="item in getAlertProducts()">
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.category }}</td>
+                                <td>{{ item.warehouse }}</td>
+                                <td><strong>{{ item.quantity }}</strong></td>
+                                <td>
+                                    <span class="badge" ng-class="{'badge-danger': item.quantity === 0, 'badge-warning': item.quantity > 0}">
+                                        {{ getStockStatus(item) }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr ng-if="getAlertProducts().length === 0">
+                                <td colspan="6" class="text-muted">All products have sufficient stock.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="panel">
+                    <h3>Categories & Warehouse Locations</h3>
+                    <div class="sub-section">
+                        <h4>Categories Summary</h4>
+                        <ul class="minimal-list">
+                            <li ng-repeat="cat in getCategories()">
+                                <span>{{ cat }}</span>
+                                <span class="list-count">{{ getProductCountByCategory(cat) }} products</span>
+                            </li>
+                            <li ng-if="getCategories().length === 0" class="text-muted">No categories available yet.</li>
+                        </ul>
+                    </div>
+                    <div class="sub-section">
+                        <h4>Warehouse Locations</h4>
+                        <ul class="minimal-list">
+                            <li ng-repeat="wh in getWarehouses()">
+                                <span>{{ wh }}</span>
+                                <span class="list-count">{{ getProductCountByWarehouse(wh) }} items</span>
+                            </li>
+                            <li ng-if="getWarehouses().length === 0" class="text-muted">No warehouse locations available yet.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Row 2: Recent Inventory Updates -->
+            <div class="dashboard-row">
+                <div class="panel">
+                    <h3>Recent Inventory Updates</h3>
+                    <table class="minimal-table">
+                        <thead>
+                            <tr>
+                                <th>Last Updated</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Action / Status</th>
+                                <th>Warehouse</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="item in getRecentUpdates()">
+                                <td>{{ item.lastUpdated }}</td>
+                                <td><strong>{{ item.name }}</strong> ({{ item.id }})</td>
+                                <td>{{ item.category }}</td>
+                                <td>{{ item.lastAction || getStockStatus(item) }}</td>
+                                <td>{{ item.warehouse }}</td>
+                                <td>{{ item.quantity }} units</td>
+                            </tr>
+                            <tr ng-if="getRecentUpdates().length === 0">
+                                <td colspan="6" class="text-muted">No inventory updates recorded yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        <!-- DASHBOARD END-->
 
 
     <!-- PRODUCT MANAGEMENT -->
@@ -227,6 +358,9 @@
 </section>
     <!-- INVENTORY LIST END-->
 
+        <!-- PRODUCT MANAGEMENT -->
+         
+        <!-- PRODUCT MANAGEMENT END-->
 
 
     <!-- WAREHOUSE -->
@@ -333,7 +467,17 @@
 
     <!-- WAREHOUSE END-->
 
+        <!-- INVENTORY LIST -->
+         
+        <!-- INVENTORY LIST END-->
 
+
+
+        <!-- WAREHOUSE -->
+         
+        <!-- WAREHOUSE END-->
+
+    </div>
 </body>
 
 </html>
