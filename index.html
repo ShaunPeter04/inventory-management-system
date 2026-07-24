@@ -184,11 +184,152 @@
 
     <!-- INVENTORY LIST -->
 
+        <section class="inventory-section">
+
+    <h2>Inventory List</h2>
+
+    <table border="1" width="100%" cellpadding="8">
+
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Warehouse</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr ng-repeat="product in products">
+
+                <td>{{product.id}}</td>
+                <td>{{product.name}}</td>
+                <td>{{product.category}}</td>
+                <td>{{product.quantity}}</td>
+                <td>{{product.warehouse}}</td>
+                <td>{{product.status}}</td>
+
+            </tr>
+
+            <tr ng-if="products.length==0">
+                <td colspan="6" align="center">
+                    No Products Available
+                </td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</section>
     <!-- INVENTORY LIST END-->
 
 
 
     <!-- WAREHOUSE -->
+      <div class="container">
+
+        <h2>Warehouse Module</h2>
+
+        <label>Select Warehouse</label>
+
+        <select
+            ng-model="selectedWarehouse"
+            ng-options="warehouse.name for warehouse in warehouses">
+            <option value="">Choose Warehouse</option>
+        </select>
+
+        <div ng-show="selectedWarehouse" class="panel">
+
+            <h3>{{selectedWarehouse.name}}</h3>
+
+            <p>
+                <b>Manager :</b>
+                {{selectedWarehouse.manager}}
+            </p>
+
+            <p>
+                <b>Capacity :</b>
+                {{selectedWarehouse.capacity}}
+            </p>
+
+            <p>
+                <b>Available Stock :</b>
+
+                <span ng-class="{
+                'high': selectedWarehouse.stock>500,
+                'medium': selectedWarehouse.stock<=500 && selectedWarehouse.stock>200,
+                'low': selectedWarehouse.stock<=200
+            }">
+
+                    {{selectedWarehouse.stock}}
+
+                </span>
+
+            </p>
+
+            <p>
+                <b>Status :</b>
+
+                <span
+                    ng-class="selectedWarehouse.status=='Active' ? 'available':'unavailable'">
+
+                    {{selectedWarehouse.status}}
+
+                </span>
+
+            </p>
+
+            <p ng-style="{'font-weight':'bold','color':'darkblue'}">
+
+                Last Updated :
+                {{selectedWarehouse.lastUpdated | date:'mediumDate'}}
+
+            </p>
+
+            <div ng-switch="selectedWarehouse.name">
+
+                <div ng-switch-when="Warehouse A">
+                    Electronics and Mobile Devices Storage
+                </div>
+
+                <div ng-switch-when="Warehouse B">
+                    Furniture and Home Appliances Storage
+                </div>
+
+                <div ng-switch-when="Warehouse C">
+                    Clothing and Fashion Products Storage
+                </div>
+
+                <div ng-switch-when="Main Storage">
+                    Main Inventory Distribution Center
+                </div>
+
+                <div ng-switch-when="Dispatch Area">
+                    Ready for Shipment Section
+                </div>
+
+            </div>
+
+        </div>
+
+        <p ng-hide="selectedWarehouse">
+
+            Please select a warehouse.
+
+        </p>
+
+        <button
+            ng-disabled="!selectedWarehouse">
+
+            Continue
+
+        </button>
+
+    </div>
 
     <!-- WAREHOUSE END-->
 
