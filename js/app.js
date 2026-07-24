@@ -37,11 +37,6 @@
 // =============================
 // WAREHOUSE
 // =============================
-
-
-
-// =============================
-// WAREHOUSE END
 $scope.warehouses = [
     {
         id: "WH001",
@@ -148,4 +143,8 @@ $scope.lowStockWarehouseCount = function () {
     return count;
 };
 
+
+
 // =============================
+// WAREHOUSE END
+
